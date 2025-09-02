@@ -31,8 +31,9 @@ jobs:
             echo "apolinario ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/apolinario
           fi
 
-      - name: Run new VPS deploy script with auto-answers
+      - name: Run VPS deploy script with auto-answers
         run: |
+          export TERM=xterm
           git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/nicplayerr/deplay-bot.git /opt/deplay-bot
           bash /opt/deplay-bot/install.sh <<EOF
           MTM5NzU3MTk0MDc0MjMzMjUzNg.GiYvYN.LPgUmKs8g8jzKWrlID141COi36QXnhHt_wBtek
