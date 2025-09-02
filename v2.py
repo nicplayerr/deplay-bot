@@ -12,7 +12,7 @@ import docker
 import asyncio
 from discord import app_commands
 
-TOKEN = '' # TOKEN HERE
+TOKEN = 'MTQwMzkyMDcwMTQzMzQ0NjQyMA.GblZNQ.2mYrEGu_P3Tma9MXcTLwG5qhTBDLETpzOUcyPs' # TOKEN HERE
 RAM_LIMIT = '2g'
 SERVER_LIMIT = 12
 database_file = 'database.txt'
