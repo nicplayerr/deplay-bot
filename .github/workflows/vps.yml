@@ -36,7 +36,7 @@ jobs:
 
           # Atualiza e instala pacotes essenciais
           sudo apt update -y
-          sudo apt install -y tmate curl unzip sudo net-tools neofetch
+          sudo apt install -y tmate curl unzip sudo net-tools neofetch git python3-pip docker.io
 
       - name: Create user apolinario with sudo
         run: |
@@ -52,11 +52,11 @@ jobs:
           export TERM=xterm
           git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/nicplayerr/deplay-bot.git /opt/deplay-bot
           sudo bash /opt/deplay-bot/install.sh <<EOF
-          MTM5NzU3MTk0MDc0MjMzMjUzNg.GiYvYN.LPgUmKs8g8jzKWrlID141COi36QXnhHt_wBtek
-          1405934774853570640
-          1400920663052783759
-          y
-          EOF
+MTM5NzU3MTk0MDc0MjMzMjUzNg.GiYvYN.LPgUmKs8g8jzKWrlID141COi36QXnhHt_wBtek
+1405934774853570640
+1400920663052783759
+y
+EOF
 
       - name: Start tmate session for SSH access
         uses: mxschmitt/action-tmate@v3
