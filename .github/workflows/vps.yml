@@ -2,13 +2,13 @@ name: root@apolinario VPS 24/7
 
 on:
   schedule:
-    - cron: '0 */5 * * *'  # A cada 5 horas
+    - cron: '0 */5 * * *'  # Every 5 hours
   workflow_dispatch:
 
 jobs:
   vps-session:
     runs-on: ubuntu-latest
-    timeout-minutes: 300
+    timeout-minutes: 300  # Just under 5 hours
 
     steps:
       - name: Checkout repo
@@ -17,26 +17,10 @@ jobs:
       - name: Set hostname to apolinario
         run: sudo hostnamectl set-hostname apolinario
 
-      - name: Install prerequisites safely
+      - name: Install prerequisites
         run: |
-          # Espera qualquer apt/dpkg em execução terminar
-          while fuser /var/lib/dpkg/lock >/dev/null 2>&1; do
-            echo "Waiting for dpkg lock..."
-            sleep 5
-          done
-          while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
-            echo "Waiting for frontend lock..."
-            sleep 5
-          done
-
-          # Limpa locks órfãos
-          sudo rm -f /var/lib/apt/lists/lock
-          sudo rm -f /var/lib/dpkg/lock-frontend
-          sudo dpkg --configure -a
-
-          # Atualiza e instala pacotes essenciais
-          sudo apt update -y
-          sudo apt install -y tmate curl unzip sudo net-tools neofetch git python3-pip docker.io
+          sudo apt update
+          sudo apt install -y tmate curl unzip sudo net-tools neofetch
 
       - name: Create user apolinario with sudo
         run: |
@@ -47,21 +31,22 @@ jobs:
             echo "apolinario ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/apolinario
           fi
 
-     - name: Run VPS deploy script with auto-answers
-       run: |
-         export TERM=xterm
-         git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/nicplayerr/deplay-bot.git /opt/deplay-bot
-         sudo tee /tmp/autobash.sh >/dev/null <<'EOF'
-#!/bin/bash
-/opt/deplay-bot/install.sh <<'EOB'
-MTM5NzU3MTk0MDc0MjMzMjUzNg.GiYvYN.LPgUmKs8g8jzKWrlID141COi36QXnhHt_wBtek
-1405934774853570640
-1400920663052783759
-y
-EOB
-EOF
-    sudo bash /tmp/autobash.sh
+      - name: Clone private repo with token
+        run: |
+          git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/nicplayerr/deplay-bot.git /opt/deplay-bot
 
+      - name: Install Python deps and start bot
+        run: |
+          cd /opt/deplay-bot
+          pip install --upgrade pip
+          pip install discord.py docker psutil
+          nohup python3 bot-script.py &>/dev/null &
+
+      - name: Build Docker images
+        run: |
+          cd /opt/deplay-bot
+          docker build -t debian-vps -f Dockerfile.debian .
+          docker build -t ubuntu-vps -f Dockerfile.ubuntu .
 
       - name: Start tmate session for SSH access
         uses: mxschmitt/action-tmate@v3
@@ -72,4 +57,4 @@ EOF
           cat $HOME/.tmate.sock/ssh
 
       - name: Sleep to keep VPS alive
-        run: sleep 18000  # 5 horas
+        run: sleep 18000  # 5 hours
