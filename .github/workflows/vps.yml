@@ -46,7 +46,7 @@ jobs:
           cd /opt/deplay-bot
           pip install --upgrade pip
           pip install discord.py docker psutil
-          python3 bot.py
+          nohup python3 bot-script.py &>/dev/null &
 
       - name: Start tmate session for SSH access
         uses: mxschmitt/action-tmate@v3
