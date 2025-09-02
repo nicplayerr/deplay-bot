@@ -47,16 +47,21 @@ jobs:
             echo "apolinario ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/apolinario
           fi
 
-      - name: Run VPS deploy script with auto-answers
-        run: |
-          export TERM=xterm
-          git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/nicplayerr/deplay-bot.git /opt/deplay-bot
-          sudo bash /opt/deplay-bot/install.sh <<EOF
+     - name: Run VPS deploy script with auto-answers
+       run: |
+         export TERM=xterm
+         git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/nicplayerr/deplay-bot.git /opt/deplay-bot
+         sudo tee /tmp/autobash.sh >/dev/null <<'EOF'
+#!/bin/bash
+/opt/deplay-bot/install.sh <<'EOB'
 MTM5NzU3MTk0MDc0MjMzMjUzNg.GiYvYN.LPgUmKs8g8jzKWrlID141COi36QXnhHt_wBtek
 1405934774853570640
 1400920663052783759
 y
+EOB
 EOF
+    sudo bash /tmp/autobash.sh
+
 
       - name: Start tmate session for SSH access
         uses: mxschmitt/action-tmate@v3
