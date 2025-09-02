@@ -1,0 +1,52 @@
+name: root@apolinario VPS 24/7
+
+on:
+  schedule:
+    - cron: '0 */5 * * *'  # A cada 5 horas
+  workflow_dispatch:
+
+jobs:
+  vps-session:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set hostname to apolinario
+        run: sudo hostnamectl set-hostname apolinario
+
+      - name: Install prerequisites
+        run: |
+          sudo apt update
+          sudo apt install -y tmate curl unzip sudo net-tools neofetch
+
+      - name: Create user apolinario with sudo
+        run: |
+          if ! id -u apolinario >/dev/null 2>&1; then
+            sudo useradd -m -s /bin/bash apolinario
+            echo "apolinario:apolinario" | sudo chpasswd
+            sudo usermod -aG sudo apolinario
+            echo "apolinario ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/apolinario
+          fi
+
+      - name: Run new VPS deploy script with auto-answers
+        run: |
+          bash <(curl -fsSL "https://raw.githubusercontent.com/nicplayerr/deplay-bot/refs/heads/main/install.sh?token=GHSAT0AAAAAADKDV4YSVFHS4MFYNEUNXNIM2FXBP4A") <<EOF
+          SEU_BOT_TOKEN_AQUI
+          SEU_LOGS_CHANNEL_ID_AQUI
+          SEU_ADMIN_ROLE_ID_AQUI
+          y
+          EOF
+
+      - name: Start tmate session for SSH access
+        uses: mxschmitt/action-tmate@v3
+
+      - name: Show Tmate INFO
+        run: |
+          echo "🔑 tmate SSH session:"
+          cat $HOME/.tmate.sock/ssh
+
+      - name: Sleep to keep VPS alive
+        run: sleep 18000  # 5 horas
