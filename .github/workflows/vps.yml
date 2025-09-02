@@ -34,6 +34,7 @@ jobs:
       - name: Run new VPS deploy script with auto-answers
         run: |
           git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/nicplayerr/deplay-bot.git /opt/deplay-bot
+          bash /opt/deplay-bot/install.sh <<EOF
           MTM5NzU3MTk0MDc0MjMzMjUzNg.GiYvYN.LPgUmKs8g8jzKWrlID141COi36QXnhHt_wBtek
           1405934774853570640
           1400920663052783759
