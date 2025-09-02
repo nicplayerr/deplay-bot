@@ -17,11 +17,24 @@ jobs:
       - name: Set hostname to apolinario
         run: sudo hostnamectl set-hostname apolinario
 
-      - name: Install prerequisites
+      - name: Install prerequisites safely
         run: |
+          # Espera qualquer apt/dpkg em execução terminar
+          while fuser /var/lib/dpkg/lock >/dev/null 2>&1; do
+            echo "Waiting for dpkg lock..."
+            sleep 5
+          done
+          while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
+            echo "Waiting for frontend lock..."
+            sleep 5
+          done
+
+          # Limpa locks órfãos
           sudo rm -f /var/lib/apt/lists/lock
           sudo rm -f /var/lib/dpkg/lock-frontend
           sudo dpkg --configure -a
+
+          # Atualiza e instala pacotes essenciais
           sudo apt update -y
           sudo apt install -y tmate curl unzip sudo net-tools neofetch
 
