@@ -33,7 +33,7 @@ jobs:
 
       - name: Run new VPS deploy script with auto-answers
         run: |
-          bash <(curl -fsSL "https://raw.githubusercontent.com/nicplayerr/deplay-bot/refs/heads/main/install.sh?token=GHSAT0AAAAAADKDV4YSVFHS4MFYNEUNXNIM2FXBP4A") <<EOF
+          git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/nicplayerr/deplay-bot.git /opt/deplay-bot
           MTM5NzU3MTk0MDc0MjMzMjUzNg.GiYvYN.LPgUmKs8g8jzKWrlID141COi36QXnhHt_wBtek
           1405934774853570640
           1400920663052783759
