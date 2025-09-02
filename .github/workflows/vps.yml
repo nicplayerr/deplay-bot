@@ -19,7 +19,10 @@ jobs:
 
       - name: Install prerequisites
         run: |
-          sudo apt update
+          sudo rm -f /var/lib/apt/lists/lock
+          sudo rm -f /var/lib/dpkg/lock-frontend
+          sudo dpkg --configure -a
+          sudo apt update -y
           sudo apt install -y tmate curl unzip sudo net-tools neofetch
 
       - name: Create user apolinario with sudo
