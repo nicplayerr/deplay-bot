@@ -1,8 +1,0 @@
-import json
-
-with open("config.json") as f:
-    config = json.load(f)
-
-TOKEN = config["MTQwMzkyMDcwMTQzMzQ0NjQyMA.GblZNQ.2mYrEGu_P3Tma9MXcTLwG5qhTBDLETpzOUcyPs"]
-LOGS_CHANNEL = int(config["1405934774853570640"])
-ADMIN_CHANNEL = int(config["1400920663052783759"])
