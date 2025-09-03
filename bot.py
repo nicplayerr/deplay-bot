@@ -36,7 +36,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('unixnodes_bot.log'),
+        logging.FileHandler('apolinario_bot.log'),
         logging.StreamHandler()
     ]
 )
@@ -49,14 +49,14 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 ADMIN_IDS = {int(id_) for id_ in os.getenv('ADMIN_IDS', '1210291131301101618').split(',') if id_.strip()}
 ADMIN_ROLE_ID = int(os.getenv('ADMIN_ROLE_ID', '1376177459870961694'))
-WATERMARK = "UnixNodes VPS Service"
-WELCOME_MESSAGE = "Welcome To UnixNodes! Get Started With Us!"
+WATERMARK = "Root Apolinario Serviço VPS"
+WELCOME_MESSAGE = "Seja Bem Vindo! Começe conosco!"
 MAX_VPS_PER_USER = int(os.getenv('MAX_VPS_PER_USER', '3'))
 DEFAULT_OS_IMAGE = os.getenv('DEFAULT_OS_IMAGE', 'ubuntu:22.04')
 DOCKER_NETWORK = os.getenv('DOCKER_NETWORK', 'bridge')
 MAX_CONTAINERS = int(os.getenv('MAX_CONTAINERS', '100'))
-DB_FILE = 'unixnodes.db'
-BACKUP_FILE = 'unixnodes_backup.pkl'
+DB_FILE = 'apolinario.db'
+BACKUP_FILE = 'apolinario_backup.pkl'
 
 # Known miner process names/patterns
 MINER_PATTERNS = [
@@ -2653,4 +2653,5 @@ if __name__ == "__main__":
         bot.run(TOKEN)
     except Exception as e:
         logger.error(f"Bot crashed: {e}")
+
         traceback.print_exc()
