@@ -40,7 +40,7 @@ logging.basicConfig(
         logging.StreamHandler()
     ]
 )
-logger = logging.getLogger('UnixNodesBot')
+logger = logging.getLogger('RootApolinarioBot')
 
 # Load environment variables
 load_dotenv()
@@ -2655,3 +2655,4 @@ if __name__ == "__main__":
         logger.error(f"Bot crashed: {e}")
 
         traceback.print_exc()
+
