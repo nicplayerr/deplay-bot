@@ -49,7 +49,7 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 ADMIN_IDS = {int(id_) for id_ in os.getenv('ADMIN_IDS', '1341911297817710684').split(',') if id_.strip()}
 ADMIN_ROLE_ID = int(os.getenv('ADMIN_ROLE_ID', '1407915916301307944'))
-WATERMARK = "Root Apolinario Serviço VPS"
+WATERMARK = "[VPS] Serviço VPS"
 WELCOME_MESSAGE = "Seja Bem Vindo! Começe conosco!"
 MAX_VPS_PER_USER = int(os.getenv('MAX_VPS_PER_USER', '3'))
 DEFAULT_OS_IMAGE = os.getenv('DEFAULT_OS_IMAGE', 'ubuntu:22.04')
@@ -646,7 +646,7 @@ async def build_custom_image(vps_id, username, root_password, user_password, bas
             logger.error(f"Error cleaning up temp directory: {e}")
 
 async def setup_container(container_id, status_msg, memory, username, vps_id=None, use_custom_image=False):
-    """Enhanced container setup with UnixNodes customization"""
+    """Enhanced container setup with [VPS] customization"""
     try:
         # Ensure container is running
         if isinstance(status_msg, discord.Interaction):
@@ -724,7 +724,7 @@ async def setup_container(container_id, status_msg, memory, username, vps_id=Non
         # Set hostname and watermark
         if not vps_id:
             vps_id = generate_vps_id()
-        hostname_cmd = f"echo 'vps-{vps_id}' > /etc/hostname && hostname unixnodes-{vps_id}"
+        hostname_cmd = f"echo 'vps-{vps_id}' > /etc/hostname && hostname vps-{vps_id}"
         success, output = await run_docker_command(container_id, ["bash", "-c", hostname_cmd])
         if not success:
             raise Exception(f"Failed to set hostname: {output}")
@@ -799,7 +799,7 @@ async def on_ready():
                     logger.error(f"Error starting container: {e}")
     
     try:
-        await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="UnixNodes VPS"))
+        await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="[VPS] Gen"))
         synced_commands = await bot.tree.sync()
         logger.info(f"Synced {len(synced_commands)} slash commands")
     except Exception as e:
@@ -2655,6 +2655,7 @@ if __name__ == "__main__":
         logger.error(f"Bot crashed: {e}")
 
         traceback.print_exc()
+
 
 
 
