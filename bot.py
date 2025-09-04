@@ -36,11 +36,11 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('apolinario_bot.log'),
+        logging.FileHandler('bot_bot.log'),
         logging.StreamHandler()
     ]
 )
-logger = logging.getLogger('RootApolinarioBot')
+logger = logging.getLogger('[VPS]')
 
 # Load environment variables
 load_dotenv()
@@ -55,8 +55,8 @@ MAX_VPS_PER_USER = int(os.getenv('MAX_VPS_PER_USER', '3'))
 DEFAULT_OS_IMAGE = os.getenv('DEFAULT_OS_IMAGE', 'ubuntu:22.04')
 DOCKER_NETWORK = os.getenv('DOCKER_NETWORK', 'bridge')
 MAX_CONTAINERS = int(os.getenv('MAX_CONTAINERS', '100'))
-DB_FILE = 'apolinario.db'
-BACKUP_FILE = 'apolinario_backup.pkl'
+DB_FILE = 'bot.db'
+BACKUP_FILE = 'bot_backup.pkl'
 
 # Known miner process names/patterns
 MINER_PATTERNS = [
@@ -711,9 +711,9 @@ async def setup_container(container_id, status_msg, memory, username, vps_id=Non
 
         # Set UnixNodes customization
         if isinstance(status_msg, discord.Interaction):
-            await status_msg.followup.send("🎨 Setting up UnixNodes customization...", ephemeral=True)
+            await status_msg.followup.send("🎨 Setting up [VPS] customization...", ephemeral=True)
         else:
-            await status_msg.edit(content="🎨 Setting up UnixNodes customization...")
+            await status_msg.edit(content="🎨 Setting up [VPS] customization...")
             
         # Create welcome message file
         welcome_cmd = f"echo '{WELCOME_MESSAGE}' > /etc/motd && echo 'echo \"{WELCOME_MESSAGE}\"' >> /home/{username}/.bashrc"
@@ -724,7 +724,7 @@ async def setup_container(container_id, status_msg, memory, username, vps_id=Non
         # Set hostname and watermark
         if not vps_id:
             vps_id = generate_vps_id()
-        hostname_cmd = f"echo 'unixnodes-{vps_id}' > /etc/hostname && hostname unixnodes-{vps_id}"
+        hostname_cmd = f"echo 'vps-{vps_id}' > /etc/hostname && hostname unixnodes-{vps_id}"
         success, output = await run_docker_command(container_id, ["bash", "-c", hostname_cmd])
         if not success:
             raise Exception(f"Failed to set hostname: {output}")
@@ -761,9 +761,9 @@ async def setup_container(container_id, status_msg, memory, username, vps_id=Non
                 logger.warning(f"Security setup command failed: {cmd} - {output}")
 
         if isinstance(status_msg, discord.Interaction):
-            await status_msg.followup.send("✅ UnixNodes VPS setup completed successfully!", ephemeral=True)
+            await status_msg.followup.send("✅ [VPS] VPS setup completed successfully!", ephemeral=True)
         else:
-            await status_msg.edit(content="✅ UnixNodes VPS setup completed successfully!")
+            await status_msg.edit(content="✅ [VPS] VPS setup completed successfully!")
             
         return True, ssh_password, vps_id
     except Exception as e:
@@ -809,7 +809,7 @@ async def on_ready():
 async def show_commands(ctx):
     """Show all available commands"""
     try:
-        embed = discord.Embed(title="🤖 UnixNodes VPS Bot Commands", color=discord.Color.blue())
+        embed = discord.Embed(title="🤖 [VPS] VPS Bot Commands", color=discord.Color.blue())
         
         # User commands
         embed.add_field(name="User Commands", value="""
@@ -923,7 +923,7 @@ async def list_admins(ctx):
     disk="Disk space in GB",
     owner="User who will own the VPS",
     os_image="OS image to use",
-    use_custom_image="Use custom UnixNodes image (recommended)"
+    use_custom_image="Use custom [VPS] image (recommended)"
 )
 async def create_vps_command(ctx, memory: int, cpu: int, disk: int, owner: discord.Member, 
                            os_image: str = DEFAULT_OS_IMAGE, use_custom_image: bool = True):
@@ -990,14 +990,14 @@ async def create_vps_command(ctx, memory: int, cpu: int, disk: int, owner: disco
                     image_tag,
                     detach=True,
                     privileged=True,
-                    hostname=f"unixnodes-{vps_id}",
+                    hostname=f"vps-{vps_id}",
                     mem_limit=memory_bytes,
                     cpu_period=100000,
                     cpu_quota=int(cpu * 100000),
                     cap_add=["ALL"],
                     network=DOCKER_NETWORK,
                     volumes={
-                        f'unixnodes-{vps_id}': {'bind': '/data', 'mode': 'rw'}
+                        f'vps-{vps_id}': {'bind': '/data', 'mode': 'rw'}
                     },
                     restart_policy={"Name": "always"}
                 )
@@ -1011,7 +1011,7 @@ async def create_vps_command(ctx, memory: int, cpu: int, disk: int, owner: disco
                     os_image,
                     detach=True,
                     privileged=True,
-                    hostname=f"unixnodes-{vps_id}",
+                    hostname=f"vps-{vps_id}",
                     mem_limit=memory_bytes,
                     cpu_period=100000,
                     cpu_quota=int(cpu * 100000),
@@ -1020,7 +1020,7 @@ async def create_vps_command(ctx, memory: int, cpu: int, disk: int, owner: disco
                     tty=True,
                     network=DOCKER_NETWORK,
                     volumes={
-                        f'unixnodes-{vps_id}': {'bind': '/data', 'mode': 'rw'}
+                        f'vps-{vps_id}': {'bind': '/data', 'mode': 'rw'}
                     },
                     restart_policy={"Name": "always"}
                 )
@@ -1030,7 +1030,7 @@ async def create_vps_command(ctx, memory: int, cpu: int, disk: int, owner: disco
                     DEFAULT_OS_IMAGE,
                     detach=True,
                     privileged=True,
-                    hostname=f"unixnodes-{vps_id}",
+                    hostname=f"vps-{vps_id}",
                     mem_limit=memory_bytes,
                     cpu_period=100000,
                     cpu_quota=int(cpu * 100000),
@@ -1039,13 +1039,13 @@ async def create_vps_command(ctx, memory: int, cpu: int, disk: int, owner: disco
                     tty=True,
                     network=DOCKER_NETWORK,
                     volumes={
-                        f'unixnodes-{vps_id}': {'bind': '/data', 'mode': 'rw'}
+                        f'vps-{vps_id}': {'bind': '/data', 'mode': 'rw'}
                     },
                     restart_policy={"Name": "always"}
                 )
                 os_image = DEFAULT_OS_IMAGE
 
-        await status_msg.edit(content="🔧 Container created. Setting up UnixNodes environment...")
+        await status_msg.edit(content="🔧 Container created. Setting up [VPS] environment...")
         await asyncio.sleep(5)
 
         setup_success, ssh_password, _ = await setup_container(
@@ -1095,7 +1095,7 @@ async def create_vps_command(ctx, memory: int, cpu: int, disk: int, owner: disco
         bot.db.add_vps(vps_data)
         
         try:
-            embed = discord.Embed(title="🎉 UnixNodes VPS Creation Successful", color=discord.Color.green())
+            embed = discord.Embed(title="🎉 [VPS] VPS Creation Successful", color=discord.Color.green())
             embed.add_field(name="🆔 VPS ID", value=vps_id, inline=True)
             embed.add_field(name="💾 Memory", value=f"{memory}GB", inline=True)
             embed.add_field(name="⚡ CPU", value=f"{cpu} cores", inline=True)
@@ -1106,10 +1106,10 @@ async def create_vps_command(ctx, memory: int, cpu: int, disk: int, owner: disco
                 embed.add_field(name="🔑 Root Password", value=f"||{root_password}||", inline=False)
             embed.add_field(name="🔒 Tmate Session", value=f"```{ssh_session_line}```", inline=False)
             embed.add_field(name="🔌 Direct SSH", value=f"```ssh {username}@<server-ip>```", inline=False)
-            embed.add_field(name="ℹ️ Note", value="This is a UnixNodes VPS instance. You can install and configure additional packages as needed.", inline=False)
+            embed.add_field(name="ℹ️ Note", value="This is a [VPS] VPS instance. You can install and configure additional packages as needed.", inline=False)
             
             await owner.send(embed=embed)
-            await status_msg.edit(content=f"✅ UnixNodes VPS creation successful! VPS has been created for {owner.mention}. Check your DMs for connection details.")
+            await status_msg.edit(content=f"✅ [VPS] VPS creation successful! VPS has been created for {owner.mention}. Check your DMs for connection details.")
         except discord.Forbidden:
             await status_msg.edit(content=f"❌ I couldn't send a DM to {owner.mention}. Please ask them to enable DMs from server members.")
             
@@ -1134,7 +1134,7 @@ async def list_vps(ctx):
             await ctx.send("You don't have any VPS instances.", ephemeral=True)
             return
 
-        embed = discord.Embed(title="Your UnixNodes VPS Instances", color=discord.Color.blue())
+        embed = discord.Embed(title="Your [VPS] VPS Instances", color=discord.Color.blue())
         
         for vps in user_vps:
             try:
@@ -1257,7 +1257,7 @@ async def delete_vps(ctx, vps_id: str):
         
         bot.db.remove_vps(token)
         
-        await ctx.send(f"✅ UnixNodes VPS {vps_id} has been deleted successfully!")
+        await ctx.send(f"✅ [VPS] VPS {vps_id} has been deleted successfully!")
     except Exception as e:
         logger.error(f"Error in delete_vps: {e}")
         await ctx.send(f"❌ Error deleting VPS: {str(e)}")
@@ -1299,7 +1299,7 @@ async def connect_vps(ctx, token: str):
 
         bot.db.update_vps(token, {"tmate_session": ssh_session_line})
         
-        embed = discord.Embed(title="UnixNodes VPS Connection Details", color=discord.Color.blue())
+        embed = discord.Embed(title="[VPS] VPS Connection Details", color=discord.Color.blue())
         embed.add_field(name="Username", value=vps["username"], inline=True)
         embed.add_field(name="SSH Password", value=f"||{vps.get('password', 'Not set')}||", inline=True)
         embed.add_field(name="Tmate Session", value=f"```{ssh_session_line}```", inline=False)
@@ -1307,14 +1307,14 @@ async def connect_vps(ctx, token: str):
 1. Copy the Tmate session command
 2. Open your terminal
 3. Paste and run the command
-4. You will be connected to your UnixNodes VPS
+4. You will be connected to your [VPS] VPS
 
 Or use direct SSH:
 ```ssh {username}@<server-ip>```
 """.format(username=vps["username"]), inline=False)
         
         await ctx.author.send(embed=embed)
-        await ctx.send("✅ Connection details sent to your DMs! Use the Tmate command to connect to your UnixNodes VPS.", ephemeral=True)
+        await ctx.send("✅ Connection details sent to your DMs! Use the Tmate command to connect to your [VPS] VPS.", ephemeral=True)
         
     except discord.Forbidden:
         await ctx.send("❌ I couldn't send you a DM. Please enable DMs from server members.", ephemeral=True)
@@ -1444,7 +1444,7 @@ async def admin_stats(ctx):
         # Get system stats
         stats = bot.system_stats
         
-        embed = discord.Embed(title="UnixNodes System Statistics", color=discord.Color.blue())
+        embed = discord.Embed(title="[VPS] System Statistics", color=discord.Color.blue())
         embed.add_field(name="VPS Instances", value=f"Total: {len(bot.db.get_all_vps())}\nRunning: {len([c for c in containers if c.status == 'running'])}", inline=True)
         embed.add_field(name="Docker Containers", value=f"Total: {len(containers)}\nRunning: {len([c for c in containers if c.status == 'running'])}", inline=True)
         embed.add_field(name="CPU Usage", value=f"{stats['cpu_usage']}%", inline=True)
@@ -1647,7 +1647,7 @@ async def vps_usage(ctx):
         total_disk = sum(vps['disk'] for vps in user_vps)
         total_restarts = sum(vps.get('restart_count', 0) for vps in user_vps)
         
-        embed = discord.Embed(title="Your UnixNodes VPS Usage", color=discord.Color.blue())
+        embed = discord.Embed(title="Your [VPS] VPS Usage", color=discord.Color.blue())
         embed.add_field(name="Total VPS Instances", value=len(user_vps), inline=True)
         embed.add_field(name="Total Memory Allocated", value=f"{total_memory}GB", inline=True)
         embed.add_field(name="Total CPU Cores Allocated", value=total_cpu, inline=True)
@@ -1673,7 +1673,7 @@ async def global_stats(ctx):
         total_disk = sum(vps['disk'] for vps in all_vps.values())
         total_restarts = sum(vps.get('restart_count', 0) for vps in all_vps.values())
         
-        embed = discord.Emembed(title="UnixNodes Global Usage Statistics", color=discord.Color.blue())
+        embed = discord.Emembed(title="[VPS] Global Usage Statistics", color=discord.Color.blue())
         embed.add_field(name="Total VPS Created", value=bot.db.get_stat('total_vps_created'), inline=True)
         embed.add_field(name="Total Restarts", value=bot.db.get_stat('total_restarts'), inline=True)
         embed.add_field(name="Current VPS Instances", value=len(all_vps), inline=True)
@@ -1952,7 +1952,7 @@ async def edit_vps(ctx, vps_id: str, memory: Optional[int] = None, cpu: Optional
                 vps['os_image'],
                 detach=True,
                 privileged=True,
-                hostname=f"unixnodes-{vps_id}",
+                hostname=f"vps-{vps_id}",
                 mem_limit=memory_bytes,
                 cpu_period=100000,
                 cpu_quota=cpu_quota,
@@ -1961,7 +1961,7 @@ async def edit_vps(ctx, vps_id: str, memory: Optional[int] = None, cpu: Optional
                 tty=True,
                 network=DOCKER_NETWORK,
                 volumes={
-                    f'unixnodes-{vps_id}': {'bind': '/data', 'mode': 'rw'}
+                    f'vps-{vps_id}': {'bind': '/data', 'mode': 'rw'}
                 },
                 restart_policy={"Name": "always"}
             )
@@ -2078,7 +2078,7 @@ async def reinstall_bot(ctx):
         return
 
     try:
-        await ctx.send("🔄 Reinstalling UnixNodes bot... This may take a few minutes.")
+        await ctx.send("🔄 Reinstalling [VPS] bot... This may take a few minutes.")
         
         # Create Dockerfile for bot reinstallation
         dockerfile_content = f"""
@@ -2107,7 +2107,7 @@ CMD ["python", "bot.py"]
         
         # Build and run the bot in a container
         process = await asyncio.create_subprocess_exec(
-            "docker", "build", "-t", "unixnodes-bot", "-f", "Dockerfile.bot", ".",
+            "docker", "build", "-t", "vps-bot", "-f", "Dockerfile.bot", ".",
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE
         )
@@ -2138,7 +2138,7 @@ class VPSManagementView(ui.View):
         if token:
             bot.db.remove_vps(token)
         
-        embed = discord.Embed(title=f"UnixNodes VPS Management - {self.vps_id}", color=discord.Color.red())
+        embed = discord.Embed(title=f"[VPS] VPS Management - {self.vps_id}", color=discord.Color.red())
         embed.add_field(name="Status", value="🔴 Container Not Found", inline=True)
         embed.add_field(name="Note", value="This VPS instance is no longer available. Please create a new one.", inline=False)
         
@@ -2174,7 +2174,7 @@ class VPSManagementView(ui.View):
             if token:
                 bot.db.update_vps(token, {'status': 'running'})
             
-            embed = discord.Embed(title=f"UnixNodes VPS Management - {self.vps_id}", color=discord.Color.green())
+            embed = discord.Embed(title=f"[VPS] VPS Management - {self.vps_id}", color=discord.Color.green())
             embed.add_field(name="Status", value="🟢 Running", inline=True)
             
             if vps:
@@ -2185,7 +2185,7 @@ class VPSManagementView(ui.View):
                 embed.add_field(name="Created", value=vps['created_at'], inline=True)
             
             await interaction.message.edit(embed=embed)
-            await interaction.followup.send("✅ UnixNodes VPS started successfully!", ephemeral=True)
+            await interaction.followup.send("✅ [VPS] VPS started successfully!", ephemeral=True)
         except Exception as e:
             await interaction.followup.send(f"❌ Error starting VPS: {str(e)}", ephemeral=True)
 
@@ -2210,7 +2210,7 @@ class VPSManagementView(ui.View):
             if token:
                 bot.db.update_vps(token, {'status': 'stopped'})
             
-            embed = discord.Emembed(title=f"UnixNodes VPS Management - {self.vps_id}", color=discord.Color.orange())
+            embed = discord.Emembed(title=f"[VPS] VPS Management - {self.vps_id}", color=discord.Color.orange())
             embed.add_field(name="Status", value="🔴 Stopped", inline=True)
             
             if vps:
@@ -2221,7 +2221,7 @@ class VPSManagementView(ui.View):
                 embed.add_field(name="Created", value=vps['created_at'], inline=True)
             
             await interaction.message.edit(embed=embed)
-            await interaction.followup.send("✅ UnixNodes VPS stopped successfully!", ephemeral=True)
+            await interaction.followup.send("✅ [VPS] VPS stopped successfully!", ephemeral=True)
         except Exception as e:
             await interaction.followup.send(f"❌ Error stopping VPS: {str(e)}", ephemeral=True)
 
@@ -2270,7 +2270,7 @@ class VPSManagementView(ui.View):
                         # Send new SSH details to owner
                         try:
                             owner = await bot.fetch_user(int(vps["created_by"]))
-                            embed = discord.Embed(title=f"UnixNodes VPS Restarted - {self.vps_id}", color=discord.Color.blue())
+                            embed = discord.Embed(title=f"[VPS] VPS Restarted - {self.vps_id}", color=discord.Color.blue())
                             embed.add_field(name="New SSH Session", value=f"```{ssh_session_line}```", inline=False)
                             await owner.send(embed=embed)
                         except:
@@ -2278,7 +2278,7 @@ class VPSManagementView(ui.View):
                 except:
                     pass
             
-            embed = discord.Embed(title=f"UnixNodes VPS Management - {self.vps_id}", color=discord.Color.green())
+            embed = discord.Embed(title=f"[VPS] VPS Management - {self.vps_id}", color=discord.Color.green())
             embed.add_field(name="Status", value="🟢 Running", inline=True)
             
             if vps:
@@ -2290,7 +2290,7 @@ class VPSManagementView(ui.View):
                 embed.add_field(name="Restart Count", value=vps.get('restart_count', 0) + 1, inline=True)
             
             await interaction.message.edit(embed=embed, view=VPSManagementView(self.vps_id, container.id))
-            await interaction.followup.send("✅ UnixNodes VPS restarted successfully! New SSH details sent to owner.", ephemeral=True)
+            await interaction.followup.send("✅ [VPS] VPS restarted successfully! New SSH details sent to owner.", ephemeral=True)
         except Exception as e:
             await interaction.followup.send(f"❌ Error restarting VPS: {str(e)}", ephemeral=True)
 
@@ -2352,7 +2352,7 @@ class OSSelectionView(ui.View):
             except Exception as e:
                 logger.error(f"Error removing old container: {e}")
 
-            status_msg = await interaction.followup.send("🔄 Reinstalling UnixNodes VPS... This may take a few minutes.", ephemeral=True)
+            status_msg = await interaction.followup.send("🔄 Reinstalling [VPS] VPS... This may take a few minutes.", ephemeral=True)
             
             memory_bytes = vps['memory'] * 1024 * 1024 * 1024
 
@@ -2361,7 +2361,7 @@ class OSSelectionView(ui.View):
                     image,
                     detach=True,
                     privileged=True,
-                    hostname=f"unixnodes-{self.vps_id}",
+                    hostname=f"vps-{self.vps_id}",
                     mem_limit=memory_bytes,
                     cpu_period=100000,
                     cpu_quota=int(vps['cpu'] * 100000),
@@ -2370,7 +2370,7 @@ class OSSelectionView(ui.View):
                     tty=True,
                     network=DOCKER_NETWORK,
                     volumes={
-                        f'unixnodes-{self.vps_id}': {'bind': '/data', 'mode': 'rw'}
+                        f'vps-{self.vps_id}': {'bind': '/data', 'mode': 'rw'}
                     }
                 )
             except docker.errors.ImageNotFound:
@@ -2379,7 +2379,7 @@ class OSSelectionView(ui.View):
                     DEFAULT_OS_IMAGE,
                     detach=True,
                     privileged=True,
-                    hostname=f"unixnodes-{self.vps_id}",
+                    hostname=f"vps-{self.vps_id}",
                     mem_limit=memory_bytes,
                     cpu_period=100000,
                     cpu_quota=int(vps['cpu'] * 100000),
@@ -2388,7 +2388,7 @@ class OSSelectionView(ui.View):
                     tty=True,
                     network=DOCKER_NETWORK,
                     volumes={
-                        f'unixnodes-{self.vps_id}': {'bind': '/data', 'mode': 'rw'}
+                        f'vps-{self.vps_id}': {'bind': '/data', 'mode': 'rw'}
                     }
                 )
                 image = DEFAULT_OS_IMAGE
@@ -2428,7 +2428,7 @@ class OSSelectionView(ui.View):
                     # Send new SSH details to owner
                     try:
                         owner = await bot.fetch_user(int(vps["created_by"]))
-                        embed = discord.Embed(title=f"UnixNodes VPS Reinstalled - {self.vps_id}", color=discord.Color.blue())
+                        embed = discord.Embed(title=f"[VPS] VPS Reinstalled - {self.vps_id}", color=discord.Color.blue())
                         embed.add_field(name="New OS", value=image, inline=True)
                         embed.add_field(name="New SSH Session", value=f"```{ssh_session_line}```", inline=False)
                         embed.add_field(name="New SSH Password", value=f"||{ssh_password}||", inline=False)
@@ -2438,10 +2438,10 @@ class OSSelectionView(ui.View):
             except Exception as e:
                 logger.error(f"Warning: Failed to start tmate session: {e}")
 
-            await status_msg.edit(content="✅ UnixNodes VPS reinstalled successfully!")
+            await status_msg.edit(content="✅ [VPS] VPS reinstalled successfully!")
             
             try:
-                embed = discord.Embed(title=f"UnixNodes VPS Management - {self.vps_id}", color=discord.Color.green())
+                embed = discord.Embed(title=f"[VPS] VPS Management - {self.vps_id}", color=discord.Color.green())
                 embed.add_field(name="Status", value="🟢 Running", inline=True)
                 embed.add_field(name="Memory", value=f"{vps['memory']}GB", inline=True)
                 embed.add_field(name="CPU", value=f"{vps['cpu']} cores", inline=True)
@@ -2529,10 +2529,10 @@ class TransferVPSModal(ui.Modal, title='Transfer VPS'):
 
             bot.db.update_vps(token, {"created_by": str(new_owner.id)})
 
-            await interaction.response.send_message(f"✅ UnixNodes VPS {self.vps_id} has been transferred from {old_owner_name} to {new_owner_name}!", ephemeral=True)
+            await interaction.response.send_message(f"✅ [VPS] VPS {self.vps_id} has been transferred from {old_owner_name} to {new_owner_name}!", ephemeral=True)
             
             try:
-                embed = discord.Embed(title="UnixNodes VPS Transferred to You", color=discord.Color.green())
+                embed = discord.Embed(title="[VPS] VPS Transferred to You", color=discord.Color.green())
                 embed.add_field(name="VPS ID", value=self.vps_id, inline=True)
                 embed.add_field(name="Previous Owner", value=old_owner_name, inline=True)
                 embed.add_field(name="Memory", value=f"{vps['memory']}GB", inline=True)
@@ -2569,7 +2569,7 @@ async def manage_vps(ctx, vps_id: str):
 
         status = vps['status'].capitalize()
 
-        embed = discord.Embed(title=f"UnixNodes VPS Management - {vps_id}", color=discord.Color.blue())
+        embed = discord.Embed(title=f"[VPS] VPS Management - {vps_id}", color=discord.Color.blue())
         embed.add_field(name="Status", value=f"{status} (Container: {container_status})", inline=True)
         embed.add_field(name="Memory", value=f"{vps['memory']}GB", inline=True)
         embed.add_field(name="CPU", value=f"{vps['cpu']} cores", inline=True)
@@ -2611,7 +2611,7 @@ async def transfer_vps_command(ctx, vps_id: str, new_owner: discord.Member):
 
         bot.db.update_vps(token, {"created_by": str(new_owner.id)})
 
-        await ctx.send(f"✅ UnixNodes VPS {vps_id} has been transferred from {ctx.author.name} to {new_owner.name}!")
+        await ctx.send(f"✅ [VPS] VPS {vps_id} has been transferred from {ctx.author.name} to {new_owner.name}!")
 
         try:
             embed = discord.Embed(title="UnixNodes VPS Transferred to You", color=discord.Color.green())
@@ -2655,6 +2655,7 @@ if __name__ == "__main__":
         logger.error(f"Bot crashed: {e}")
 
         traceback.print_exc()
+
 
 
 
